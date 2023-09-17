@@ -154,6 +154,7 @@ def incoming():
         return 'OK'
 
     elif str(data['data']['payload']['text']).strip() == '/status':
+        print("TESTING")
         # This returns a list of ALL movies being downloaded, but not all of them were
         # requested by the user, so we need to filter out the ones that were not requested
         response = requests.get(f'{radarr_host}/api/v3/queue/', headers=headers)
@@ -197,7 +198,7 @@ def incoming():
         if message == "":
             # For all movie IDs within the database
             for movie_id in movies.keys():
-                response = requests.get(f'{radarr_host}/api/v3/movie/lookup/tmdb?tmdbId={movie_id}', headers=headers)
+                response = requests.get(f'{radarr_host}/api/v3/movie/{movie_id}', headers=headers)
                 # This means that there is no current download, and no file has been found
                 # MOST likely means a download just wasn't found, so alert the user
                 if response.json()['hasFile'] == False:
