@@ -154,7 +154,6 @@ def incoming():
         return 'OK'
 
     elif str(data['data']['payload']['text']).strip() == '/status':
-        print("TESTING")
         # This returns a list of ALL movies being downloaded, but not all of them were
         # requested by the user, so we need to filter out the ones that were not requested
         response = requests.get(f'{radarr_host}/api/v3/queue/', headers=headers)
@@ -201,7 +200,8 @@ def incoming():
                 response = requests.get(f'{radarr_host}/api/v3/movie/{movie_id}', headers=headers)
                 # This means that there is no current download, and no file has been found
                 # MOST likely means a download just wasn't found, so alert the user
-                if response.json()['hasFile'] == False:
+                data = response.json()
+                if data['hasFile'] == False:
                     message += f"{movies[movie_id]} - NOT FOUND\n\nThis means a download was not found for the movie(s), if this is a brand new movie that is likely the reason. If the movie has already been released on DVD/Blu-Ray, please contact Parker."
 
             # If the message is still empty, that means the user has no movies being downloaded
