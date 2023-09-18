@@ -52,18 +52,19 @@ if value_not_set:
         for entry in data:
             f.write(f'# {entry["id"]} - {entry["name"]}\n')
 
-        f.write("quality_profile_id: ")
-        f.write("\n")
-        f.write("home_domain: null # Optional: 404/405 errors redirect to this domain, leaving as\n# null means the webserver will just return the error to the browser\n")
-        f.write("api_number:  # International format\n")
-        f.write("valid_senders:  # International format, comma-space separated (eg. +18005263256, +18005428741\n")
-        f.write("root_folder_path:  # Path to the root folder where movies are downloaded to\n")
+        f.write("quality_profile_id:\n")
+        f.write("home_domain: null\n")
+        f.write("api_number:\n")
+        f.write("valid_senders:\n")
+        f.write("root_folder_path:\n")
         if sms_service not in supported_sms_services:
             print(f'{sms_service} is not a supported SMS service. Please choose from the supported list: {supported_sms_services}')
             exit()
 
         if sms_service == 'telnyx':
-            f.write("telnyx_api_key: \n")
+            f.write("telnyx_api_key:\n")
+
+        f.write("\n\n# INFORMATION: There should be NO trailing spaced after you enter a value,\n# this will cause errors.\n# There should be one space after the colon though (e.g. quality_profile_id: 1)\n# Check docs for information on each value.")
     exit()
 
 numbers_responses = {
