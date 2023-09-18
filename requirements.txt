@@ -1,4 +1,4 @@
-Flask==2.2.3
+Flask==2.2.5
 requests==2.31.0
 humanize==4.8.0
 PyYAML==6.0
