@@ -2,7 +2,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import sqlite3
 import requests
 
-from initialize_variables import radarr_host, headers
+from initialize_variables import radarr_host_url, headers
 
 # Remove all entries from the database of movies that have already finished downloading
 # This helps to stop from entries building up in the database and slowing down everything
@@ -17,7 +17,7 @@ def clear_database():
     ''')
     movie_ids = cursor.fetchall()
     # Get all of the movie_ids that are currently downloading/queued and/or missing
-    response = requests.get(f'{radarr_host}/api/v3/queue/', headers=headers)
+    response = requests.get(f'{radarr_host_url}/api/v3/queue/', headers=headers)
     current_movie_ids = []
     for movie in response.json()['records']:
         current_movie_ids.append(str(movie['movieId']))

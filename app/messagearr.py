@@ -48,7 +48,10 @@ and then run the command if it is valid.
 def incoming():
     # Get the data and define the from_number (number that sent the message)
     data = flask.request.get_json()
-    from_number = data['data']['payload']['from']['phone_number']
+
+    if sms_service == 'telnyx':
+        from_number = data['data']['payload']['from']['phone_number']
+
     # Make sure the number is a valid_sender, this stops random people from
     # adding movies to the library
     if from_number not in valid_senders:
@@ -69,7 +72,7 @@ def incoming():
         incoming_message = str(data['data']['payload']['text']).split(' ', 1)[1]
         movie_request = incoming_message.replace(' ', '%20')
         # Send a request to the radarr API to get the movie info
-        response = requests.get(f'{radarr_host}/api/v3/movie/lookup?term={movie_request}', headers=headers)
+        response = requests.get(f'{radarr_host_url}/api/v3/movie/lookup?term={movie_request}', headers=headers)
         # If there are no results, alert the user
         if len(response.json()) == 0:
             create_message(from_number, "There were no results for that movie. Please make sure you typed the title correctly.")
@@ -121,7 +124,7 @@ def incoming():
             del temp_movie_ids[from_number]
             return 'OK'
 
-        data = requests.get(f'{radarr_host}/api/v3/movie/lookup/tmdb?tmdbId={tmdb_id}', headers=headers)
+        data = requests.get(f'{radarr_host_url}/api/v3/movie/lookup/tmdb?tmdbId={tmdb_id}', headers=headers)
 
         data = data.json()
         movie_title = data['title']
@@ -130,14 +133,14 @@ def incoming():
         data['monitored'] = True
         data['rootFolderPath'] = root_folder_path
         # Pass this data into a pass request to the radarr API, this will add the movie to the library
-        response = requests.post(f'{radarr_host}/api/v3/movie', headers=headers, json=data)
+        response = requests.post(f'{radarr_host_url}/api/v3/movie', headers=headers, json=data)
         data = response.json()
         movie_id = data['id']
         # Send message to user alerting them that the movie was added to the library
         create_message(from_number, f"🎉 {data['title']} has been added to the library!\n\nTo check up on the status of your movie(s) send /status - please wait at least 5 minutes before running this command in order to get an accurate time.")
         # Finally, as to not slow up the sending of the message, send this request
         # Send a POST request to the radarr API to search for the movie in the indexers
-        requests.post(f'{radarr_host}/api/v3/command', headers=headers, json={'name': 'MoviesSearch', 'movieIds': [int(movie_id)]})
+        requests.post(f'{radarr_host_url}/api/v3/command', headers=headers, json={'name': 'MoviesSearch', 'movieIds': [int(movie_id)]})
 
         # Add the movie_id to the database so that users can check up on the status of their movie
         db = sqlite3.connect('/data/movies.db')
@@ -156,7 +159,7 @@ def incoming():
     elif str(data['data']['payload']['text']).strip() == '/status':
         # This returns a list of ALL movies being downloaded, but not all of them were
         # requested by the user, so we need to filter out the ones that were not requested
-        response = requests.get(f'{radarr_host}/api/v3/queue/', headers=headers)
+        response = requests.get(f'{radarr_host_url}/api/v3/queue/', headers=headers)
         # Get all the movie_ids that were requested by the user
         db = sqlite3.connect('/data/movies.db')
         cursor = db.cursor()
@@ -197,10 +200,11 @@ def incoming():
         if message == "":
             # For all movie IDs within the database
             for movie_id in movies.keys():
-                response = requests.get(f'{radarr_host}/api/v3/movie/lookup/tmdb?tmdbId={movie_id}', headers=headers)
+                response = requests.get(f'{radarr_host_url}/api/v3/movie/{movie_id}', headers=headers)
                 # This means that there is no current download, and no file has been found
                 # MOST likely means a download just wasn't found, so alert the user
-                if response.json()['hasFile'] == False:
+                data = response.json()
+                if data['hasFile'] == False:
                     message += f"{movies[movie_id]} - NOT FOUND\n\nThis means a download was not found for the movie(s), if this is a brand new movie that is likely the reason. If the movie has already been released on DVD/Blu-Ray, please contact Parker."
 
             # If the message is still empty, that means the user has no movies being downloaded
@@ -223,14 +227,12 @@ def incoming():
 # Handle 405 errors - when a user attempts a GET request on a POST only route
 @app.errorhandler(405)
 def method_not_allowed(e):
-    if home_domain:
-        return flask.redirect(home_domain, code=302)
-    else:
-        return 'Method not allowed', 405
+    if home_domain != 'None':
+        return flask.redirect(home_domain)
+    return 'Method Not Allowed'
 
 @app.errorhandler(404)
 def page_not_found(e):
-    if home_domain:
-        return flask.redirect(home_domain, code=302)
-    else:
-        return 'Page not found', 404
+    if home_domain != 'None':
+        return flask.redirect(home_domain)
+    return 'Page Not Found'
