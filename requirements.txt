@@ -7,3 +7,4 @@ hypercorn==0.14.4
 asyncio==3.4.3
 
 telnyx==2.0.0
+twilio==8.8.0

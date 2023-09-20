@@ -47,29 +47,31 @@ and then run the command if it is valid.
 @app.route('/incoming', methods=['POST'])
 def incoming():
     # Get the data and define the from_number (number that sent the message)
-    data = flask.request.get_json()
-
     if sms_service == 'telnyx':
-        from_number = data['data']['payload']['from']['phone_number']
+        from_number = flask.request.get_json()['data']['payload']['from']['phone_number']
+        message = str(flask.request.get_json()['data']['payload']['text'])
+
+    if sms_service == 'twilio':
+        from_number = flask.request.form['From']
+        message = str(flask.request.form['Body'])
 
     # Make sure the number is a valid_sender, this stops random people from
     # adding movies to the library
     if from_number not in valid_senders:
         return 'OK'
     # If the message starts with /request, that means the user is trying to add a movie
-    unparsed = str(data['data']['payload']['text'])
-    if unparsed.startswith('/request'):
+    if message.startswith('/request'):
         # If the user has already run the /request command, delete the entry
         # from the temp_movie_ids dict so that they can run the command again
         if from_number in temp_movie_ids.keys():
             del temp_movie_ids[from_number]
         # If the user did not include a movie title, alert them to do so
         # Just check to make sure that the length of the message is greater than 9
-        if len(unparsed) <= 9:
+        if len(message) <= 9:
             create_message(from_number, "Please include the movie title after the /request command.\nEX: /request The Dark Knight")
             return 'OK'
 
-        incoming_message = str(data['data']['payload']['text']).split(' ', 1)[1]
+        incoming_message = message.split(' ', 1)[1]
         movie_request = incoming_message.replace(' ', '%20')
         # Send a request to the radarr API to get the movie info
         response = requests.get(f'{radarr_host_url}/api/v3/movie/lookup?term={movie_request}', headers=headers)
@@ -100,7 +102,7 @@ def incoming():
     # Elif the user responded with a variation of 1, 2, or 3
     # This means they are replying to the previous prompt, so now we need to
     # add their movie choice to radarr for download
-    elif str(data['data']['payload']['text']).strip() in numbers_responses.keys():
+    elif message.strip() in numbers_responses.keys():
         # If there is no entry for the user in the temp_movie_ids dict, that means
         # they have not yet run the /request command, so alert them to do so.
         if from_number not in temp_movie_ids.keys():
@@ -116,7 +118,7 @@ def incoming():
         # Otherwise, all checks have been completed, so alert the user of the
         # start of the process
         create_message(from_number, "Just a moment while I add your movie to the library...")
-        movie_number = numbers_responses[str(data['data']['payload']['text']).strip()]
+        movie_number = numbers_responses[message.strip()]
         try:
             tmdb_id = temp_movie_ids[from_number]['ids'][movie_number - 1]
         except IndexError:
@@ -156,7 +158,7 @@ def incoming():
         del temp_movie_ids[from_number]
         return 'OK'
 
-    elif str(data['data']['payload']['text']).strip() == '/status':
+    elif message.strip() == '/status':
         # This returns a list of ALL movies being downloaded, but not all of them were
         # requested by the user, so we need to filter out the ones that were not requested
         response = requests.get(f'{radarr_host_url}/api/v3/queue/', headers=headers)

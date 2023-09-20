@@ -2,7 +2,7 @@ import os
 import yaml
 import requests
 
-supported_sms_services = ['telnyx']
+supported_sms_services = ['telnyx', 'twilio']
 
 sms_service = str(os.environ['SMS_SERVICE']).lower()
 radarr_host_url = str(os.environ['RADARR_HOST_URL'])
@@ -32,6 +32,10 @@ try:
 
             if sms_service == 'telnyx':
                 telnyx_api_key = str(file['telnyx_api_key'])
+
+            if sms_service == 'twilio':
+                twilio_account_sid = str(file['twilio_account_sid'])
+                twilio_auth_token = str(file['twilio_auth_token'])
 
             value_not_set = False
         except:
@@ -63,6 +67,10 @@ if value_not_set:
 
         if sms_service == 'telnyx':
             f.write("telnyx_api_key:\n")
+
+        if sms_service == 'twilio':
+            f.write("twilio_account_sid:\n")
+            f.write("twilio_auth_token:\n")
 
         f.write("\n\n# INFORMATION: There should be NO trailing spaced after you enter a value,\n# this will cause errors.\n# There should be one space after the colon though (e.g. quality_profile_id: 1)\n# Check docs for information on each value.")
     exit()
