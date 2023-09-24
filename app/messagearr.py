@@ -39,6 +39,39 @@ valid_senders = []
 for number in val_nums.split(', '):
     valid_senders.append(number)
 
+if notif_receivers_nums:
+    notif_receivers = []
+
+    for number in notif_receivers_nums.split(', '):
+        notif_receivers.append(number)
+
+
+"""
+POST request route to accept incoming notifications from UptimeKuma
+regarding the status of certain services. Messages are sent to the
+'notif_receivers' list whenever a service goes down or comes back up.
+"""
+@app.route('/kuma', methods=['POST'])
+def api():
+    # Make sure the request is coming from UptimeKuma (Configured to use this authorization token)
+    if flask.request.headers.get('Authorization') == authorization_header_token:
+        data = flask.request.get_json()
+
+        if data['heartbeat']['status'] == 0:
+            message = f"❌ {data['monitor']['name']} is down!"
+
+        elif data['heartbeat']['status'] == 1:
+            message = f"✅ {data['monitor']['name']} is up!"
+
+        for number in notif_receivers:
+            create_message(number, message)
+
+        return 'OK'
+    # If the request does not contain the correct authorization token, return 401
+    else:
+        return 'Unauthorized', 401
+
+
 """
 POST request route to accept incoming message from the SMS API,
 then process the incoming message in order to see if it is a valid command

@@ -4,9 +4,10 @@ import requests
 
 supported_sms_services = ['telnyx', 'twilio']
 
-sms_service = str(os.environ['SMS_SERVICE']).lower()
 radarr_host_url = str(os.environ['RADARR_HOST_URL'])
 radarr_api_key = str(os.environ['RADARR_API_KEY'])
+enable_kuma_notifications = str(os.environ['ENABLE_KUMA_NOTIFICATIONS']).lower()
+sms_service = str(os.environ['SMS_SERVICE']).lower()
 
 headers = {
     'Content-Type': 'application/json',
@@ -26,6 +27,11 @@ try:
             api_number = str(file['api_number'])
             val_nums = str(file['valid_senders'])
             root_folder_path = str(file['root_folder_path'])
+
+            if enable_kuma_notifications == 'true':
+                notif_receivers_nums = str(file['notif_receivers'])
+                authorization_header_token = str(file['authorization_header_token'])
+
             if sms_service not in supported_sms_services:
                 print(f'{sms_service} is not a supported SMS service. Please choose from the supported list: {supported_sms_services}')
                 exit()
@@ -58,9 +64,14 @@ if value_not_set:
 
         f.write("quality_profile_id:\n")
         f.write("home_domain: null\n")
-        f.write("api_number:\n")
-        f.write("valid_senders:\n")
+        f.write("api_number: ''\n")
+        f.write("valid_senders: ''\n")
         f.write("root_folder_path:\n")
+
+        if enable_kuma_notifications == 'true':
+            f.write("notif_receivers: ''\n")
+            f.write("authorization_header_token: uptimekumaauthtoken\n")
+
         if sms_service not in supported_sms_services:
             print(f'{sms_service} is not a supported SMS service. Please choose from the supported list: {supported_sms_services}')
             exit()
