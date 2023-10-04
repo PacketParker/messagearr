@@ -226,6 +226,9 @@ def incoming():
                         # Sometimes movie downloads take a long time and include days in the time_left value
                         # This is formated as 1.00:00:00
                         time_left = humanize.precisedelta(datetime.datetime.strptime(movie['timeleft'], '%d.%H:%M:%S') - datetime.datetime.strptime('00:00:00', '%H:%M:%S'), minimum_unit='seconds')
+                    except KeyError:
+                        time_left = 'Unknown'
+
                     message += f"📥 {movies[movie_id]} - {time_left}\n"
                 else:
                     message += f"{movies[movie_id]} - {str(movie['status']).upper()}\n"
