@@ -7,5 +7,7 @@ WORKDIR /
 COPY . .
 RUN pip install -r requirements.txt
 
+ENV IN_DOCKER Yes
+
 ENTRYPOINT [ "python" ]
 CMD [ "-u", "app/wsgi.py" ]

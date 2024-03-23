@@ -3,12 +3,6 @@ services:
     messagearr:
         ports:
             - '4545:4545'
-        environment:
-            - TZ=America/Chicago # OPTIONAL: Default is UTC
-            - ENABLE_KUMA_NOTIFICATIONS=false # Whether or not to setup UptimeKuma SMS notifications
-            - RADARR_HOST_URL=http://127.0.0.1:7878 # Change to your radarr host
-            - RADARR_API_KEY=apikeyhere # Found by navigating to Settings > General
-            - SMS_SERVICE= # Currently only supporting Telnyx and Twilio
         volumes:
             - /loca/file/path:/data
         image: packetparker/messagearr:latest
