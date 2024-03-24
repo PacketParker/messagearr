@@ -1,6 +1,6 @@
 # Messagearr
 
-Add new movies to your Radarr library through text messages, and check on their download status. Plus, allow users to create temporary Jellyfin accounts that will automatically delete themselves, allowing your friends to watch and request movies without having to manually dp anything.
+Add new movies to your Radarr library through text messages, check on their download status, recieve text notifications for uptime kuma monitors, and allow people to create temporary Jellyfin accounts that automatically delete themselves.
 
 ## Hosting Instructions
 
@@ -75,4 +75,22 @@ JELLYFIN_URL | The URL of your Jellyfin instance | REQUIRED
 JELLYFIN_API_KEY | The API from Jellyfin (can be created in Dashboard > API Keys) | REQUIRED
 
 ### Uptime Kuma Setup
-If you choose to enable the Uptime Kuma notifications, you will
+If you choose to enable the Uptime Kuma notifications, you will need to configure your Uptime Kuma instance to send webhooks to your Messagearr instance.
+
+1. Navigate to Settings > Notifications and click "Setup Notification"
+
+2. Choose "Webhook" as the Notification Type
+
+3. Friendly Name can be whatever you want
+
+4. Post URL should be the URL that your Messagearr instance will be on with /kuma at the end (e.g. https://messagearr.example.com/kuma)
+
+5. Request Body must be set to "Preset - application/json"
+
+6. Enable the "Addition Headers" toggle, and enter the following in the text box
+```json
+{
+    "Authorization": "uptimekumaauthtoken"
+}
+```
+*Note: The 'Authorization' value can be whatever you want, but it MUST be the same as the AUTHORIZATION_HEADER_TOKEN that is set in the `config.ini` file.*
