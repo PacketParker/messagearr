@@ -26,7 +26,7 @@ Download the latest version of Messagearr, install the requirements from the `re
 
 On the first run, Messagearr will exit and print out and error statement, it will also automatically create a `config.ini` file for you, with the necessary fields.
 
-*Note: Some fields may not be created on the first run. For example, if you choose to enable the Uptime Kuma notifications, the configuration fields for that feature will only be added after you set the field to true and then re-run Messagearr*
+#### *Note: Some fields may not be created on the first run. For example, if you choose to enable the Uptime Kuma notifications, the configuration fields for that feature will only be added after you set the field to true and then re-run Messagearr*
 
 An explanation of the each configuration field can be found below
 
@@ -93,4 +93,4 @@ If you choose to enable the Uptime Kuma notifications, you will need to configur
     "Authorization": "uptimekumaauthtoken"
 }
 ```
-*Note: The 'Authorization' value can be whatever you want, but it MUST be the same as the AUTHORIZATION_HEADER_TOKEN that is set in the `config.ini` file.*
+#### *Note: The 'Authorization' value can be whatever you want, but it MUST be the same as the AUTHORIZATION_HEADER_TOKEN that is set in the `config.ini` file.*
