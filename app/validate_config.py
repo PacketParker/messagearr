@@ -73,7 +73,7 @@ def validate_config(file_contents):
             initialize_variables.valid_senders.append(sender)
 
     # Check RADARR_HOST_URL
-    if not validators.url(config['REQUIRED']['RADARR_HOST_URL']):
+    if not config['REQUIRED']['RADARR_HOST_URL']:
         print(chalk.red('Invalid or empty URL passed to RADARR_HOST_URL. Pass a valid URL (e.g. http://localhost:7878)'))
         exit()
     initialize_variables.radarr_host_url = config['REQUIRED']['RADARR_HOST_URL']
