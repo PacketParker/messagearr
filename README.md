@@ -2,6 +2,8 @@
 
 Add new movies to your Radarr library through text messages, check on their download status, recieve text notifications for uptime kuma monitors, and allow people to create temporary Jellyfin accounts that automatically delete themselves.
 
+This is a project that was developed exactly for my use case and then open-sourced. So... it might not be exactly what you are looking for, if thats the case, feel free to open an issue on this repo explaining something you would want to see added.
+
 ## Hosting Instructions
 
 #### *Note: No matter if you choose Docker or bare metal to run Messagearr, you will need to follow the same "Configuration" instructions.*
