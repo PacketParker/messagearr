@@ -5,7 +5,7 @@ from create_message import create_message
 from commands.request import request
 from commands.status import status
 from commands.number_response_request import number_response_request
-from commands.movie_show_response_newaccount import movie_show_response_newaccount
+from commands.create_jellyfin_account import create_jellyfin_account
 import initialize_variables
 
 app = flask.Flask(__name__)
@@ -58,34 +58,30 @@ def incoming():
     if from_number not in initialize_variables.valid_senders:
         return 'OK'
 
-    if message.startswith('/request'):
+    if message.strip().lower().startswith('/request'):
         request(from_number, message)
         return 'OK'
 
     # If a user responded with a number, they are responding to
     # the 'request' command prompt
-    elif message.strip() in initialize_variables.numbers_responses.keys():
+    elif message.strip().lower() in initialize_variables.numbers_responses.keys():
         number_response_request(from_number, message)
         return 'OK'
 
-    elif message.startswith('/status'):
+    elif message.strip().lower().startswith('/status'):
         status(from_number)
         return 'OK'
 
-    elif message.startswith('/newaccount'):
+    elif message.strip().lower().startswith('/newaccount'):
         if initialize_variables.enable_jellyfin_temp_accounts.lower() == 'true':
             # If number is already in the temp dict, delete it so that they can redo the request
-            if from_number in initialize_variables.temp_new_account_requests.keys():
-                del initialize_variables.temp_new_account_requests[from_number]
+            if from_number in initialize_variables.jellyfin_active_accounts.keys():
+                if datetime.datetime.now() - initialize_variables.jellyfin_active_accounts[from_number] < datetime.timedelta(hours=4):
+                    create_message(from_number, "You already have an active account. Please wait until it expires to create a new one.")
+                    return 'OK'
 
-            create_message(from_number, "Will you be watching a TV show or a movie?\n\nRespond with 'show' for TV show, 'movie' for movies")
-            initialize_variables.temp_new_account_requests[from_number] = datetime.datetime.now()
-        return 'OK'
-
-    # User must be responding to above prompt
-    elif message.strip().lower() in ['show', 'movie']:
-        if initialize_variables.enable_jellyfin_temp_accounts.lower() == 'true':
-            movie_show_response_newaccount(from_number, message)
+            create_jellyfin_account(from_number)
+            initialize_variables.jellyfin_active_accounts[from_number] = datetime.datetime.now()
         return 'OK'
 
     # No valid commands were found, so just return

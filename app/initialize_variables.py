@@ -52,8 +52,8 @@ def init():
         }
     }
     """
-    global temp_new_account_requests
-    temp_new_account_requests = {}
+    global jellyfin_active_accounts
+    jellyfin_active_accounts = {}
     """
     {
         'from_number': 'time'

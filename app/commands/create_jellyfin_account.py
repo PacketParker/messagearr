@@ -8,32 +8,12 @@ import initialize_variables
 from create_message import create_message
 
 
-def movie_show_response_newaccount(from_number, message):
-    if from_number not in initialize_variables.temp_new_account_requests.keys():
-        create_message(from_number, "There is no current request that you can decide on. It might be that your /newaccount command timed out due since you took too long to response. Please try again. If this issue persists, please contact Parker.")
-        return
-
-    # If its been 5 minutes since prompt was sent, alert user of timed out request
-    if (datetime.datetime.now() - initialize_variables.temp_new_account_requests[from_number]).total_seconds() / 60 > 5:
-        del initialize_variables.temp_new_account_requests[from_number]
-        create_message(from_number, "You waited too long and therefore your request has timed out.\n\nPlease try again by re-running the /newaccount command. If this issue persists, please contact Parker.")
-        return
-
-    if message.strip().lower() == "show":
-        active_time = 24
-
-    elif message.strip().lower() == "movie":
-        active_time = 4
-
-    else:
-        create_message(from_number, "You did not enter a valid response. Please re-send the /newaccount command and try again. If you believe this is an error, please contact Parker.")
-        return
-
+def create_jellyfin_account(from_number):
     # Otherwise, all checks have been completed
     username = ''.join(random.choices(string.ascii_lowercase + string.digits, k=5))
     password = ''.join(random.choices(string.ascii_lowercase + string.digits, k=15))
 
-    deletion_time = datetime.datetime.now() + datetime.timedelta(hours=active_time)
+    deletion_time = datetime.datetime.now() + datetime.timedelta(hours=4)
     # Create new Jellyfin account
     request_1 = requests.post(f'{initialize_variables.jellyfin_url}/Users/New', headers=initialize_variables.jellyfin_headers, json={'Name': username, 'Password': password})
     if request_1.status_code != 200:
@@ -68,5 +48,5 @@ def movie_show_response_newaccount(from_number, message):
     db.commit()
     db.close()
 
-    create_message(from_number, f"Username: {username}\nPassword: {password}\n\nYour account will expire in {active_time} hours.")
+    create_message(from_number, f"Username: {username}\nPassword: {password}\n\nYour account will expire in 4 hours.")
     return
