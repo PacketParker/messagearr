@@ -1,6 +1,7 @@
 # Messagearr
 
-IMPORTANT: No longer under development. Focus has transfered to the easier to use Discord alternative called <a href="https://github.com/packetparker/cordarr">CordArr</a>
+**IMPORTANT: No longer under development. Focus has transfered to the easier to use Discord alternative called <a href="https://github.com/packetparker/cordarr">CordArr</a>**
+<br>
 <br>
 <br>
 Add new movies to your Radarr library through text messages, check on their download status, recieve text notifications for uptime kuma monitors, and allow people to create temporary Jellyfin accounts that automatically delete themselves.
